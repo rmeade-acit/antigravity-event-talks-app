@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Browse, search, and filter the latest Google Cloud BigQuery release notes. A modern, dark-themed developer explorer with features, announcements, and issue tracking.">
+    <title>BigQuery Release Notes Explorer</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <!-- CSS stylesheet -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <!-- Background visual assets (glowing blobs for rich aesthetics) -->
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+
+    <div class="app-container">
+        <!-- Header Section -->
+        <header class="app-header">
+            <div class="header-logo-section">
+                <div class="logo-icon">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg">
+                        <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </div>
+                <div class="logo-text">
+                    <h1>BigQuery Release Notes</h1>
+                    <p class="tagline">Explore and track recent updates, announcements, and issues in Google Cloud BigQuery</p>
+                </div>
+            </div>
+            
+            <div class="header-meta-actions">
+                <div class="feed-status" id="feed-status-info">
+                    <span class="status-indicator loading" id="status-indicator"></span>
+                    <span class="status-text" id="status-text">Connecting to feed...</span>
+                </div>
+                <button class="btn-refresh" id="btn-refresh" title="Force Refresh Feed" aria-label="Refresh notes">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg" class="icon-spin">
+                        <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 11-.57-8.38l.56-.56" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>Refresh</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Content Grid -->
+        <main class="app-main">
+            <!-- Sidebar: Analytics & Quick info -->
+            <aside class="app-sidebar">
+                <!-- Stats Panel -->
+                <section class="sidebar-panel glassmorphic-panel" id="stats-panel">
+                    <h2 class="panel-title">Overview</h2>
+                    <div class="stats-grid">
+                        <div class="stat-card" data-filter="all">
+                            <span class="stat-num" id="stat-total">-</span>
+                            <span class="stat-label">Total Notes</span>
+                        </div>
+                        <div class="stat-card" data-filter="Feature">
+                            <span class="stat-num color-feature" id="stat-features">-</span>
+                            <span class="stat-label">Features</span>
+                        </div>
+                        <div class="stat-card" data-filter="Announcement">
+                            <span class="stat-num color-announcement" id="stat-announcements">-</span>
+                            <span class="stat-label">Announcements</span>
+                        </div>
+                        <div class="stat-card" data-filter="Issue">
+                            <span class="stat-num color-issue" id="stat-issues">-</span>
+                            <span class="stat-label">Issues</span>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Helpful Links Panel -->
+                <section class="sidebar-panel glassmorphic-panel">
+                    <h2 class="panel-title">Resources</h2>
+                    <ul class="resources-list">
+                        <li>
+                            <a href="https://cloud.google.com/bigquery/docs/release-notes" target="_blank" rel="noopener noreferrer">
+                                <span class="resource-icon">🌐</span>
+                                <span>Official Release Notes</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://docs.cloud.google.com/feeds/bigquery-release-notes.xml" target="_blank" rel="noopener noreferrer">
+                                <span class="resource-icon">📡</span>
+                                <span>Atom XML Feed</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="https://cloud.google.com/bigquery/docs" target="_blank" rel="noopener noreferrer">
+                                <span class="resource-icon">📖</span>
+                                <span>BigQuery Documentation</span>
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+            </aside>
+
+            <!-- Main Timeline Content -->
+            <section class="timeline-section">
+                <!-- Search & Filters Bar (Sticky) -->
+                <div class="controls-bar glassmorphic-panel" id="controls-bar">
+                    <!-- Search Input -->
+                    <div class="search-container">
+                        <svg class="search-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2005/svg">
+                            <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        <input type="text" id="search-input" placeholder="Search release notes by keywords (e.g. Gemini, GA, table)..." aria-label="Search release notes">
+                        <button id="search-clear-btn" class="search-clear-btn" title="Clear search" aria-label="Clear search">✕</button>
+                    </div>
+
+                    <!-- Filter Options -->
+                    <div class="filters-container">
+                        <div class="category-tabs" id="category-tabs" role="tablist">
+                            <button class="tab-btn active" id="tab-all" role="tab" aria-selected="true" data-type="all">All</button>
+                            <button class="tab-btn" id="tab-features" role="tab" aria-selected="false" data-type="Feature">Features</button>
+                            <button class="tab-btn" id="tab-announcements" role="tab" aria-selected="false" data-type="Announcement">Announcements</button>
+                            <button class="tab-btn" id="tab-issues" role="tab" aria-selected="false" data-type="Issue">Issues</button>
+                        </div>
+
+                        <div class="sort-selector">
+                            <label for="sort-select">Sort:</label>
+                            <select id="sort-select" class="custom-select">
+                                <option value="newest" selected>Newest First</option>
+                                <option value="oldest">Oldest First</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Active Filter Tags Display -->
+                <div class="active-filters-summary" id="active-filters-summary" style="display: none;">
+                    <span class="summary-text" id="filters-summary-text">Showing 0 notes</span>
+                    <button class="btn-clear-all" id="btn-clear-filters">Clear filters</button>
+                </div>
+
+                <!-- Loading State -->
+                <div class="timeline-loading" id="timeline-loading">
+                    <div class="spinner"></div>
+                    <p>Fetching BigQuery release notes...</p>
+                </div>
+
+                <!-- Error State -->
+                <div class="timeline-error glassmorphic-panel" id="timeline-error" style="display: none;">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Failed to Load Notes</h3>
+                    <p id="error-message">Could not fetch the release notes feed. Please check your connection and try again.</p>
+                    <button class="btn-primary" id="btn-retry">Retry Fetching</button>
+                </div>
+
+                <!-- Empty State -->
+                <div class="timeline-empty glassmorphic-panel" id="timeline-empty" style="display: none;">
+                    <div class="empty-icon">🔍</div>
+                    <h3>No Release Notes Found</h3>
+                    <p>No notes match your current search and filter criteria. Try adjusting your query or resetting filters.</p>
+                    <button class="btn-secondary" id="btn-reset-filters">Reset Filters</button>
+                </div>
+
+                <!-- Main Timeline Container -->
+                <div class="notes-timeline" id="notes-timeline" style="display: none;">
+                    <!-- Timeline items will be injected here by JavaScript -->
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 BigQuery Release Notes Explorer. All data sourced from <a href="https://cloud.google.com/bigquery" target="_blank" rel="noopener noreferrer">Google Cloud Platform</a> feed.</p>
+        </footer>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+        <span id="toast-message"></span>
+    </div>
+
+    <!-- JS script -->
+    <script src="/static/js/main.js"></script>
+</body>
+</html>
